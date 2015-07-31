@@ -1468,17 +1468,32 @@ angular.module('ngMap', []);
       el.style.height = "100%";
       element.prepend(el);
 
+
       /**
        * if style is not given to the map element, set display and height
        */
-      if (attrs.defaultStyle !== 'false') {
-        if (getStyle(element[0], 'display') != "block") {
-          element.css('display', 'block');
+      var setDefaultStyle = function() {
+        if (attrs.defaultStyle !== 'false') {
+          if (getStyle(element[0], 'display') != "block") {
+            element.css('display', 'block');
+            element.height('inherit');
+            element.width('inherit');
+          }
+          if (getStyle(element[0], 'height').match(/^(0|auto)/)) {
+            element.css('height', '300px');
+          }
         }
-        if (getStyle(element[0], 'height').match(/^(0|auto)/)) {
-          element.css('height', '300px');
-        }
-      }
+      } // end of setDefaultStyle
+
+      // make sure that we set the default style of our element
+      setDefaultStyle();
+
+      /**
+       * watch for default style for changes
+       */
+      attrs.$observe("defaultStyle", function(val) {
+        setDefaultStyle();
+      });
 
       /**
        * disable drag event
@@ -1596,53 +1611,6 @@ angular.module('ngMap', []);
   };
 
   angular.module('ngMap').directive('map', ['Attr2Options', '$timeout', '$parse', mapDirective]);
-})();
-
-/**
- * @ngdoc directive
- * @name maps-engine-layer
- * @description 
- *   Requires:  map directive
- *   Restrict To:  Element
- *
- * @example
- * Example: 
- *   <map zoom="14" center="[59.322506, 18.010025]">
- *     <maps-engine-layer layer-id="06673056454046135537-08896501997766553811"></maps-engine-layer>
- *    </map>
- */
-(function() {
-  'use strict';
-
-  angular.module('ngMap').directive('mapsEngineLayer', ['Attr2Options', function(Attr2Options) {
-    var parser = Attr2Options;
-
-    var getMapsEngineLayer = function(options, events) {
-      var layer = new google.maps.visualization.MapsEngineLayer(options);
-
-      for (var eventName in events) {
-        google.maps.event.addListener(layer, eventName, events[eventName]);
-      }
-
-      return layer;
-    };
-
-    
-    return {
-      restrict: 'E',
-      require: '^map',
-
-      link: function(scope, element, attrs, mapController) {
-        var filtered = parser.filter(attrs);
-        var options = parser.getOptions(filtered);
-        var events = parser.getEvents(scope, filtered, events);
-        console.log('maps-engine-layer options', options, 'events', events);
-
-        var layer = getMapsEngineLayer(options, events);
-        mapController.addObject('mapsEngineLayers', layer);
-      }
-     }; // return
-  }]);
 })();
 
 /* global google */
@@ -1828,6 +1796,53 @@ angular.module('ngMap', []);
 
   MapController.$inject = ['$scope', '$q', 'NavigatorGeolocation', 'GeoCoder', 'Attr2Options'];
   angular.module('ngMap').controller('MapController', MapController);
+})();
+
+/**
+ * @ngdoc directive
+ * @name maps-engine-layer
+ * @description 
+ *   Requires:  map directive
+ *   Restrict To:  Element
+ *
+ * @example
+ * Example: 
+ *   <map zoom="14" center="[59.322506, 18.010025]">
+ *     <maps-engine-layer layer-id="06673056454046135537-08896501997766553811"></maps-engine-layer>
+ *    </map>
+ */
+(function() {
+  'use strict';
+
+  angular.module('ngMap').directive('mapsEngineLayer', ['Attr2Options', function(Attr2Options) {
+    var parser = Attr2Options;
+
+    var getMapsEngineLayer = function(options, events) {
+      var layer = new google.maps.visualization.MapsEngineLayer(options);
+
+      for (var eventName in events) {
+        google.maps.event.addListener(layer, eventName, events[eventName]);
+      }
+
+      return layer;
+    };
+
+    
+    return {
+      restrict: 'E',
+      require: '^map',
+
+      link: function(scope, element, attrs, mapController) {
+        var filtered = parser.filter(attrs);
+        var options = parser.getOptions(filtered);
+        var events = parser.getEvents(scope, filtered, events);
+        console.log('maps-engine-layer options', options, 'events', events);
+
+        var layer = getMapsEngineLayer(options, events);
+        mapController.addObject('mapsEngineLayers', layer);
+      }
+     }; // return
+  }]);
 })();
 
 /**
