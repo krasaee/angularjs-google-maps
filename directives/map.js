@@ -81,17 +81,32 @@
       el.style.height = "100%";
       element.prepend(el);
 
+
       /**
        * if style is not given to the map element, set display and height
        */
-      if (attrs.defaultStyle !== 'false') {
-        if (getStyle(element[0], 'display') != "block") {
-          element.css('display', 'block');
+      var setDefaultStyle = function() {
+        if (attrs.defaultStyle !== 'false') {
+          if (getStyle(element[0], 'display') != "block") {
+            element.css('display', 'block');
+            element.height('inherit');
+            element.width('inherit');
+          }
+          if (getStyle(element[0], 'height').match(/^(0|auto)/)) {
+            element.css('height', '300px');
+          }
         }
-        if (getStyle(element[0], 'height').match(/^(0|auto)/)) {
-          element.css('height', '300px');
-        }
-      }
+      } // end of setDefaultStyle
+
+      // make sure that we set the default style of our element
+      setDefaultStyle();
+
+      /**
+       * watch for default style for changes
+       */
+      attrs.$observe("defaultStyle", function(val) {
+        setDefaultStyle();
+      });
 
       /**
        * disable drag event
