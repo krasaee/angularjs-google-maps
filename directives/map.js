@@ -89,8 +89,8 @@
         if (attrs.defaultStyle !== 'false') {
           if (getStyle(element[0], 'display') != "block") {
             element.css('display', 'block');
-            element.height('inherit');
-            element.width('inherit');
+            element.css('height', 'inherit');
+            element.css('width', 'inherit');
           }
           if (getStyle(element[0], 'height').match(/^(0|auto)/)) {
             element.css('height', '300px');
