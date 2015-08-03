@@ -108,31 +108,34 @@
       el.style.height = "100%";
       element.prepend(el);
 
-
       /**
        * if style is not given to the map element, set display and height
        */
-      var setDefaultStyle = function() {
-        if (attrs.defaultStyle !== 'false') {
+      var setDefaultStyle = function(defaultStyle) {
+        if (defaultStyle !== 'false') {
           if (getStyle(element[0], 'display') != "block") {
             element.css('display', 'block');
-            element.css('height', 'inherit');
-            element.css('width', 'inherit');
           }
           if (getStyle(element[0], 'height').match(/^(0|auto)/)) {
             element.css('height', '300px');
           }
+
+          return;
         }
+
+        // otherwise set the height and width to inherit
+        element.css('height', 'inherit');
+        element.css('width', 'inherit');
       } // end of setDefaultStyle
 
       // make sure that we set the default style of our element
-      setDefaultStyle();
+      setDefaultStyle(attrs.defaultStyle);
 
       /**
        * watch for default style for changes
        */
-      attrs.$observe("defaultStyle", function(val) {
-        setDefaultStyle();
+      attrs.$observe("defaultStyle", function(defaultStyle) {
+        setDefaultStyle(defaultStyle);
       });
 
       /**
